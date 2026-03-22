@@ -8,7 +8,5 @@ Topics of regularization covered:
   - Inverted Dropout
 - early stopping
 - L1-L2 Elastic Net Regression
-- L1 LASSO Regression
-- L1 Regularization
-- L2 Regularization - applicable to multilayer neural networks, neural nets, and linear models (e.g., Logistic Regression)
-- L2 Ridge Regression
+- L1 Regularization (LASSO Regression)
+- L2 Regularization (Ridge Regression) - applicable to multilayer neural networks, neural nets, and linear models (e.g., Logistic Regression)
