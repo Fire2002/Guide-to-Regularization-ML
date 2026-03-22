@@ -1,0 +1,91 @@
+# Dropout Regularization, Python example
+
+import numpy as np
+
+##### Generating sample data #####
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Reproducibility
+np.random.seed(42)
+
+# Generate synthetic regression data
+X = np.linspace(-10, 10, 200)
+y = 3 * X + 7 + np.random.normal(0, 5, size=X.shape)
+
+# Reshape for model input
+X = X.reshape(-1, 1)
+y = y.reshape(-1, 1)
+
+# Plot data
+plt.scatter(X, y, alpha=0.5)
+plt.title("Sample Regression Data")
+plt.show()
+
+##### Building a neural network via DROPOUT #####
+# note: may need Windows long pathing enabled.
+import os
+import tensorflow as tf
+keras = tf.keras
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+from keras import layers
+
+model = keras.Sequential([
+    layers.Dense(64, activation='relu', input_shape=(1,)),
+    layers.Dropout(0.3),  # Dropout layer (30% neurons randomly dropped)
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(1)  # Output layer for regression
+])
+
+model.compile(
+    optimizer='adam',
+    loss='mse',
+    metrics=['mae']
+)
+
+model.summary()
+
+##### Train #####
+history = model.fit(
+    X, y,
+    epochs=100,
+    batch_size=16,
+    validation_split=0.2,
+    verbose=0
+)
+
+##### Make predictions #####
+y_pred = model.predict(X)
+
+# Plot predictions
+plt.scatter(X, y, alpha=0.3, label="Data")
+plt.plot(X, y_pred, color='red', label="Model Prediction")
+plt.legend()
+plt.title("Dropout Regression Fit")
+plt.show()
+
+'''
+for inferencing, dropout is typically disabled.
+however, if enabled, uncertainty estimates can be obtained
+when running predictions (Monte Carlo Dropout)
+'''
+
+# Monte Carlo Dropout
+def mc_dropout_predict(model, X, n_samples=100):
+    preds = np.array([model(X, training=True) for _ in range(n_samples)])
+    return preds.mean(axis=0), preds.std(axis=0)
+
+mean_pred, uncertainty = mc_dropout_predict(model, X)
+
+plt.plot(X, mean_pred, label="Mean Prediction")
+plt.fill_between(
+    X.flatten(),
+    (mean_pred - 2*uncertainty).flatten(),
+    (mean_pred + 2*uncertainty).flatten(),
+    alpha=0.3,
+    label="Uncertainty"
+)
+plt.legend()
+plt.title("Monte Carlo Dropout Predictions for Uncertainty")
+plt.show()

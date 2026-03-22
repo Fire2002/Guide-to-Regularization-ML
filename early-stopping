@@ -1,0 +1,74 @@
+# early-stopping regularization, Python example
+
+# training starts -> both training + validation loss decrease
+# early stopping detects when validation loss stops improving (or starts increasing) and halts training
+ 
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Reproducibility
+np.random.seed(40)
+
+# Generate synthetic regression data
+X = np.linspace(-10, 10, 200)
+y = 3 * X + 7 + np.random.normal(0, 5, size=X.shape)
+
+# Reshape for model input
+X = X.reshape(-1, 1)
+y = y.reshape(-1, 1)
+
+plt.scatter(X, y, alpha=0.5)
+plt.title("Sample Regression Data")
+plt.show()
+
+# Regression model
+import tensorflow as tf
+keras = tf.keras
+from keras import layers
+
+model = keras.Sequential([
+    layers.Dense(64, activation='relu', input_shape=(1,)),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(1)
+])
+
+model.compile(
+    optimizer='adam',
+    loss='mse',
+    metrics=['mae']
+)
+
+# Early stopping
+early_stop = keras.callbacks.EarlyStopping(
+    monitor='val_loss',     # watch validation loss
+    patience=10,            # epochs to wait before stopping
+    restore_best_weights=True
+)
+
+# Training with validation + early stopping
+history = model.fit(
+    X, y,
+    epochs=200,             # large max, but won't reach it
+    batch_size=16,
+    validation_split=0.2,
+    callbacks=[early_stop],
+    verbose=1
+)
+
+# Plot training vs validation loss
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.legend()
+plt.title("Early Stopping Behavior")
+plt.xlabel("Epoch")
+plt.ylabel("MSE Loss")
+plt.show()
+
+# Predictions
+y_pred = model.predict(X)
+
+plt.scatter(X, y, alpha=0.3, label="Data")
+plt.plot(X, y_pred, color='red', label="Model Prediction")
+plt.legend()
+plt.title("Regression with Early Stopping")
+plt.show()
