@@ -2,7 +2,7 @@
 
 Topics of regularization covered:
 - Regularization as a hard constraint v.s. soft constraint
-- Dropout (neural dropout): dropping nodes
+- Dropout: randomly disables neurons
   - The Co-Adaptation Interpretation
   - The Ensemble Method Interpretation
   - Inverted Dropout
